@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Seguro — Agendit</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+</head>
+<body class="checkout-page">
+
+  <div class="checkout-box">
+    <!-- CABEÇALHO CHECKOUT -->
+    <div class="checkout-header">
+      <div class="logo">
+        <a href="index.html">
+          <img src="Logo_Agendit.jpg" alt="Agendit" class="logo-img">
+        </a>
+      </div>
+
+      <!-- STEPPER (PASSO A PASSO) -->
+      <div class="stepper">
+        <div class="step-dot active" id="dot-1">
+          1
+          <span class="step-label">Cadastro</span>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2">
+          2
+          <span class="step-label">Pagamento</span>
+        </div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="dot-3">
+          3
+          <span class="step-label">Concluído</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 1: CADASTRO DE USUÁRIO E EMPRESA -->
+    <section id="step-1" class="checkout-step active">
+      <h2>Criar sua Conta</h2>
+      <p class="subtitle">Preencha seus dados pessoais e as informações do seu negócio.</p>
+
+      <form id="form-cadastro" onsubmit="handleCadastro(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="user-name">Seu Nome Completo *</label>
+          <input type="text" id="user-name" class="form-input" placeholder="Ex: Lucas Silva" required>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="user-email">E-mail Profissional *</label>
+            <input type="email" id="user-email" class="form-input" placeholder="seu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="user-phone">WhatsApp para Notificações *</label>
+            <input type="tel" id="user-phone" class="form-input" placeholder="(11) 99999-9999" required oninput="this.value = maskPhone(this.value)">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="business-name">Nome do seu Negócio / Espaço *</label>
+          <input type="text" id="business-name" class="form-input" placeholder="Ex: Studio VIP Barber, Bella Lash..." required>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="business-segment">Segmento de Atuação *</label>
+            <select id="business-segment" class="form-select" required>
+              <option value="">Selecione o seu ramo...</option>
+              <option value="barbearia">Barbearia</option>
+              <option value="lash">Lash Design / Cílios</option>
+              <option value="bronze">Bronze de Fita / Marquinha</option>
+              <option value="salao">Salão de Beleza / Cabelereiro</option>
+              <option value="estetica">Clínica de Estética</option>
+              <option value="outro">Outro Negócio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="user-password">Criar Senha de Acesso *</label>
+            <input type="password" id="user-password" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <button type="submit" class="btn btn-primary btn-lg btn-full">
+            Avançar para o Pagamento 💳
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- PASSO 2: PAGAMENTO VIA KIWIFY -->
+    <section id="step-2" class="checkout-step">
+      <h2>Finalizar Pagamento</h2>
+      <p class="subtitle">Assinatura mensal recorrente com valor promocional no primeiro mês.</p>
+
+      <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">Você será redirecionado para o checkout seguro da Kiwify.</p>
+        <a href="https://pay.kiwify.com.br/fQ5ua2V" target="_blank" class="btn btn-primary btn-lg btn-full">
+          Ir para o Checkout Seguro →
+        </a>
+        <p style="text-align: center; font-size: 12px; color: #9C88C4; margin-top: 16px;">Pagamento seguro via Kiwify</p>
+      </div>
+
+      <div style="margin-top: 16px; text-align: center;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="goToStep(1)">
+          ← Voltar e alterar dados de cadastro
+        </button>
+      </div>
+    </section>
+
+    <!-- PASSO 3: SUCESSO E REDIRECIONAMENTO -->
+    <section id="step-3" class="checkout-step">
+      <div class="success-panel">
+        <div class="success-icon">🎉</div>
+        <h2>Pagamento Aprovado com Sucesso!</h2>
+        <p>
+          Parabéns! Sua assinatura do <strong>Agendit</strong> foi ativada. Agora você pode configurar sua logomarca, cadastrar seus serviços e começar a enviar o link para seus clientes agendarem!
+        </p>
+
+        <div class="card" style="text-align: left; margin-bottom: 24px; padding: 20px;">
+          <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Próximo passo importante:</div>
+          <div style="font-weight: 700; font-size: 16px; color: #C084FC;">Personalizar seu Site de Agendamento</div>
+          <div style="font-size: 13px; color: var(--text-faint); margin-top: 4px;">
+            Configure seu logotipo, defina seus horários e adicione os preços de cada serviço.
+          </div>
+        </div>
+
+        <a href="dashboard.html" class="btn btn-primary btn-lg btn-full">
+          Personalizar Meu Site de Agendamentos Agora 👉
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Gerenciamento de Passos do Checkout
+    function goToStep(step) {
+      document.querySelectorAll('.checkout-step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step-${step}`).classList.add('active');
+
+      // Atualizar stepper
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        const line = document.getElementById(`line-${i}`);
+        
+        dot.classList.remove('active', 'done');
+        if (line) line.classList.remove('done');
+
+        if (i < step) {
+          dot.classList.add('done');
+          if (line) line.classList.add('done');
+        } else if (i === step) {
+          dot.classList.add('active');
+        }
+      }
+    }
+
+    // Formulário de Cadastro
+    function handleCadastro(e) {
+      e.preventDefault();
+      const name = document.getElementById('user-name').value.trim();
+      const email = document.getElementById('user-email').value.trim();
+      const phone = document.getElementById('user-phone').value.trim();
+      const businessName = document.getElementById('business-name').value.trim();
+      const segment = document.getElementById('business-segment').value;
+
+      if (!name || !email || !phone || !businessName || !segment) {
+        showToast('Por favor, preencha todos os campos obrigatórios!', 'error');
+        return;
+      }
+
+      // Salvar dados no Storage
+      const user = { name, email, phone };
+      Storage.setUser(user);
+
+      const currentBusiness = Storage.getBusiness();
+      currentBusiness.name = businessName;
+      currentBusiness.segment = segment;
+      currentBusiness.whatsapp = phone.replace(/\D/g, '');
+      currentBusiness.slug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      Storage.setBusiness(currentBusiness);
+
+      // Registrar usuário com senha (para login no painel)
+      const password = document.getElementById('user-password').value;
+      if (password) {
+        Auth.register(name, email, password);
+        Auth.login(email, password);
+      }
+
+      showToast('Cadastro realizado com sucesso!', 'success');
+      goToStep(2);
+    }
+
+
+  </script>
+</body>
+</html>

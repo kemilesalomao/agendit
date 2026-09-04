@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Administrador — Agendit</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+
+  <!-- BOTÃO MOBILE SIDEBAR TOGGLE -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
+  <div class="dashboard-layout">
+    <!-- SIDEBAR ADMIN -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-icon">🛡️</div>
+        <span>Agend<span class="text-gradient">it</span></span>
+      </div>
+
+      <div class="sidebar-label">Navegação Principal</div>
+
+      <button class="sidebar-item active" onclick="switchTab('visao')">
+        <span class="icon">📊</span>
+        <span>Visão Geral</span>
+      </button>
+
+      <button class="sidebar-item" onclick="switchTab('empresa')">
+        <span class="icon">🏢</span>
+        <span>Gerenciar Empresa</span>
+      </button>
+
+      <button class="sidebar-item" onclick="switchTab('servicos')">
+        <span class="icon">✂️</span>
+        <span>Serviços</span>
+      </button>
+
+      <button class="sidebar-item" onclick="switchTab('agendamentos')">
+        <span class="icon">📅</span>
+        <span>Agendamentos</span>
+      </button>
+
+      <button class="sidebar-item" onclick="switchTab('link')">
+        <span class="icon">🔗</span>
+        <span>Link de Agendamento</span>
+      </button>
+
+      <button class="sidebar-item" onclick="switchTab('site')">
+        <span class="icon">🌐</span>
+        <span>Visualizar o Site</span>
+      </button>
+
+      <div class="sidebar-label">Ações Rápidas</div>
+
+      <a href="agendamento.html" target="_blank" class="sidebar-item" style="color: #10B981;">
+        <span class="icon">👁️</span>
+        <span>Ver Site do Cliente</span>
+      </a>
+
+      <a href="index.html" class="sidebar-item">
+        <span class="icon">🏠</span>
+        <span>Página Inicial</span>
+      </a>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="avatar" id="sidebar-avatar">AD</div>
+          <div class="info">
+            <div class="name" id="sidebar-user-name">Administrador</div>
+            <div class="plan" id="sidebar-user-plan">🛡️ Administrador</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm btn-full" style="margin-top: 16px;" onclick="logout()">
+          Sair da Conta
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="dashboard-main">
+
+      <!-- TOPBAR -->
+      <div class="dashboard-topbar">
+        <div>
+          <div class="topbar-greeting" id="topbar-greeting">Olá, Administrador 👑</div>
+          <div class="topbar-sub">Painel de controle completo da plataforma Agendit.</div>
+        </div>
+        <div class="topbar-user">
+          <div class="avatar" id="topbar-avatar">AD</div>
+          <div>
+            <div class="topbar-name" id="topbar-name">Administrador</div>
+            <div class="topbar-role">Painel Admin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- ABA 0: VISÃO GERAL (DASHBOARD) -->
+      <!-- ============================================== -->
+      <section id="tab-visao" class="dash-tab active">
+        <div class="dashboard-header">
+          <h1>Visão Geral</h1>
+          <p>Resumo do desempenho do negócio e atividades recentes.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card sc-primary">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value" id="stat-total-apts">0</div>
+            <div class="stat-label">Agendamentos</div>
+          </div>
+          <div class="stat-card sc-green">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value text-gradient" id="stat-revenue">R$ 0,00</div>
+            <div class="stat-label">Faturamento Estimado</div>
+          </div>
+          <div class="stat-card sc-amber">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value" id="stat-services-count">0</div>
+            <div class="stat-label">Serviços Ativos</div>
+          </div>
+          <div class="stat-card sc-pink">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" style="color: #EC4899;">98%</div>
+            <div class="stat-label">Taxa de Confirmação</div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Agendamentos Recentes</div>
+          <div id="recent-apts" style="color: var(--text-muted);">Carregando...</div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 1: EDITAR EMPRESA & SITE DE AGENDAMENTO -->
+      <!-- ============================================== -->
+      <section id="tab-empresa" class="dash-tab">
+        <div class="dashboard-header">
+          <h1>Personalizar Meu Site de Agendamentos</h1>
+          <p>Altere a logo, o nome do negócio, as cores e as informações que seus clientes verão.</p>
+        </div>
+
+        <div class="card dash-card" style="max-width: 800px;">
+          <form id="form-empresa" onsubmit="saveBusinessData(event)">
+
+            <!-- UPLOAD DE LOGO -->
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label class="form-label">Logotipo da sua Empresa</label>
+              <div class="logo-upload-area" onclick="document.getElementById('logo-input').click()">
+                <input type="file" id="logo-input" accept="image/*" onchange="handleLogoUpload(event)">
+                <img id="logo-preview-img" class="logo-preview" alt="Prévia da Logo">
+                <div id="logo-upload-text">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                  <strong style="color: var(--primary);">Clique aqui para selecionar a Logo</strong>
+                  <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Formatos: PNG, JPG ou WEBP</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="dash-biz-name">Nome da Empresa / Espaço *</label>
+                <input type="text" id="dash-biz-name" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dash-biz-segment">Segmento *</label>
+                <select id="dash-biz-segment" class="form-select" required>
+                  <option value="barbearia">Barbearia</option>
+                  <option value="lash">Lash Design / Cílios</option>
+                  <option value="bronze">Bronze de Fita</option>
+                  <option value="salao">Salão de Beleza</option>
+                  <option value="estetica">Estética Geral</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="dash-biz-phone">WhatsApp para Notificações *</label>
+                <input type="tel" id="dash-biz-phone" class="form-input" placeholder="(11) 99999-9999" required oninput="this.value = maskPhone(this.value)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dash-biz-color">Cor de Destaque da Sua Página</label>
+                <div class="color-picker-wrap">
+                  <input type="color" id="dash-biz-color" value="#7C3AED" onchange="updateColorText(this.value)">
+                  <input type="text" id="dash-biz-color-text" class="form-input" value="#7C3AED" style="max-width: 130px;" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label" for="dash-biz-address">Endereço do Estabelecimento</label>
+              <input type="text" id="dash-biz-address" class="form-input" placeholder="Ex: Av. Paulista, 1000 - Sala 42, Centro">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label" for="dash-biz-hours">Horário de Funcionamento</label>
+              <input type="text" id="dash-biz-hours" class="form-input" placeholder="Ex: Seg a Sáb das 09:00 às 19:00">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label class="form-label" for="dash-biz-desc">Descrição / Mensagem aos Clientes</label>
+              <textarea id="dash-biz-desc" class="form-input" rows="3" placeholder="Conte brevemente sobre os diferenciais do seu atendimento..."></textarea>
+            </div>
+
+            <div class="panel-block">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+                <span style="font-size: 22px;">💳</span>
+                <div>
+                  <div style="font-weight: 700; font-size: 15px;">Receber Pagamento via PIX</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">Seus clientes poderão pagar o agendamento direto para você.</div>
+                </div>
+              </div>
+              <div class="form-grid" style="margin-bottom: 14px;">
+                <div class="form-group">
+                  <label class="form-label" for="dash-biz-pix">Chave PIX *</label>
+                  <input type="text" id="dash-biz-pix" class="form-input" placeholder="Ex: CPF, e-mail, celular ou chave aleatória">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="dash-biz-pix-name">Nome do Recebedor</label>
+                  <input type="text" id="dash-biz-pix-name" class="form-input" placeholder="Ex: Lucas Silva">
+                </div>
+              </div>
+              <p style="font-size: 12px; color: var(--text-faint);">A chave será exibida ao cliente para quitar o pagamento do serviço na confirmação.</p>
+              <div style="margin-top: 16px; border-top: 1px solid var(--border-light); padding-top: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                  <div>
+                    <div style="font-weight: 700; font-size: 14px;">📷 QR Code PIX</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">O empresário envia o QR para o cliente pagar no chat</div>
+                  </div>
+                  <label class="switch" title="Exibir QR no chat"><input type="checkbox" id="dash-pix-qr-enabled" onchange="togglePixQr()"><span class="slider"></span></label>
+                </div>
+                <div id="pix-qr-block" style="display: none;">
+                  <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                    <div id="pix-qr-preview" style="width: 160px; height: 160px; border: 1.5px dashed var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--bg-input); overflow: hidden;">
+                      <span style="font-size: 12px; color: var(--text-faint); text-align: center; padding: 10px;">Nenhum QR<br>carregado</span>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('pix-qr-input').click()">📤 Enviar / Trocar QR</button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="generatePixQr()">⚡ Gerar da chave</button>
+                        <button type="button" class="btn btn-ghost btn-sm" style="color: var(--danger);" onclick="removePixQr()">🗑️ Remover</button>
+                      </div>
+                      <input type="file" id="pix-qr-input" accept="image/*" style="display: none;" onchange="handlePixQrUpload(event)">
+                      <p style="font-size: 12px; color: var(--text-faint); margin-top: 8px;">JPG/PNG até 2MB. Aparece no chat junto com a chave.</p>
+                      <button type="button" class="btn btn-outline btn-sm btn-full" onclick="copyPixQr()" id="btn-copy-qr" style="display: none; margin-top: 8px;">📋 Copiar QR Code</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pay-toggle-card" id="pay-toggle-card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                <div>
+                  <div class="pay-toggle-title">💰 Cobrar 50% no meio do agendamento</div>
+                  <div class="pay-toggle-desc">Quando <strong>ativo</strong>, o chatbot cobra <strong>50%</strong> no meio da conversa (PIX ou cartão) para confirmar. Quando desligado, gratuito e paga presencial.</div>
+                </div>
+                <label class="switch" title="Ativar/desativar 50%">
+                  <input type="checkbox" id="pay-50-toggle" onchange="togglePay50()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div id="pay-50-details" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+                <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
+                  <span style="font-size: 20px;">✅</span>
+                  <div style="font-size: 13px;"><strong>50% ativo:</strong> ex: R$100 → <strong style="color:#10B981;">R$50 no chat</strong> + R$50 presencial. PIX só aparece se a chave acima estiver preenchida.</div>
+                </div>
+                <label class="form-label" for="dash-gateway">Gateway</label>
+                <select id="dash-gateway" class="form-select">
+                  <option value="none">Modo demonstração (sem gateway)</option>
+                  <option value="mercadopago">Mercado Pago</option>
+                  <option value="pagbank">PagBank</option>
+                  <option value="asaas">Asaas</option>
+                </select>
+                <p style="font-size: 12px; color: var(--text-faint); margin-top: 6px;">Pagamentos seguros — dados de cartão nunca são armazenados.</p>
+              </div>
+            </div>
+            <div style="display:none;">
+              <input type="radio" name="payMode" id="payMode-free" value="free">
+              <input type="radio" name="payMode" id="payMode-upfront" value="upfront">
+              <input type="radio" name="upfrontPercent" value="50" checked>
+            </div>
+
+            <div style="display: flex; gap: 14px;">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Salvar Alterações da Minha Empresa 💾
+              </button>
+              <a href="agendamento.html" target="_blank" class="btn btn-outline btn-lg">
+                Visualizar Como Ficou 👁️
+              </a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 2: GERENCIAMENTO DE SERVIÇOS -->
+      <!-- ============================================== -->
+      <section id="tab-servicos" class="dash-tab">
+        <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h1>Gerenciar Serviços</h1>
+            <p>Adicione, edite ou remova os serviços que aparecem para seus clientes agendarem.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openServiceModal()">+ Adicionar Novo Serviço</button>
+        </div>
+        <div class="card" style="max-width: 800px;">
+          <div class="services-list" id="services-container"></div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 3: AGENDAMENTOS RECEBIDOS -->
+      <!-- ============================================== -->
+      <section id="tab-agendamentos" class="dash-tab">
+        <div class="dashboard-header">
+          <h1>Agendamentos Recebidos</h1>
+          <p>Consulte todos os clientes que agendaram serviços pelo seu link.</p>
+        </div>
+        <div class="card" style="overflow-x: auto;">
+          <table class="appointments-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Data / Horário</th>
+                <th>Valor Total</th>
+                <th>Pago Online</th>
+                <th>Restante</th>
+                <th>Método</th>
+                <th>Pagamento</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="appointments-container"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 4: MEU LINK DE AGENDAMENTO -->
+      <!-- ============================================== -->
+      <section id="tab-link" class="dash-tab">
+        <div class="dashboard-header">
+          <h1>Seu Link de Agendamento</h1>
+          <p>Divulgue este link com seus clientes no Instagram, WhatsApp, Facebook e Google Meu Negócio.</p>
+        </div>
+        <div class="card dash-card" style="max-width: 800px;">
+          <div style="margin-bottom: 20px;">
+            <label class="form-label">Link Exclusivo da sua Empresa</label>
+            <div class="link-box">
+              <span id="booking-link-text">https://seusite.com/agendamento.html</span>
+              <button class="btn btn-outline btn-sm" onclick="copyBookingLink()">📋 Copiar Link</button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;">
+            <button class="btn btn-success" onclick="shareOnWhatsApp()">📲 Compartilhar no WhatsApp</button>
+            <a href="agendamento.html" target="_blank" class="btn btn-outline">🚀 Abrir Página do Cliente</a>
+          </div>
+          <div style="background: rgba(124, 58, 237, 0.08); border-left: 3px solid var(--primary); padding: 18px; border-radius: var(--radius);">
+            <h4 style="font-size: 15px; margin-bottom: 6px;">💡 Dica de Ouro para Aumentar Agendamentos:</h4>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              Coloque esse link diretamente no botão de ação da sua Bio do Instagram com a legenda: <em>"Clique no link abaixo para agendar seu horário em menos de 1 minuto ⏰"</em>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL DE ADICIONAR / EDITAR SERVIÇO -->
+  <div class="modal-overlay" id="service-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-service-title">Adicionar Novo Serviço</h3>
+        <button class="modal-close" onclick="closeServiceModal()">✕</button>
+      </div>
+      <form id="form-service" onsubmit="saveService(event)">
+        <input type="hidden" id="service-id">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="service-name">Nome do Serviço *</label>
+          <input type="text" id="service-name" class="form-input" placeholder="Ex: Corte Degradê, Extensão de Cílios Volume Russo..." required>
+        </div>
+        <div class="form-grid" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="service-price">Preço (R$) *</label>
+            <input type="number" id="service-price" class="form-input" placeholder="50.00" step="0.50" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="service-duration">Duração Média *</label>
+            <input type="text" id="service-duration" class="form-input" placeholder="Ex: 45 min, 1h 20 min" required>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="service-icon">Ícone / Emoji Representativo</label>
+          <input type="text" id="service-icon" class="form-input" placeholder="Ex: ✂️, 👁️, ☀️, 💇‍♀️, 💅" value="✂️" maxlength="4">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-ghost" onclick="closeServiceModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Serviço</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Proteção de acesso: exige login do administrador
+    if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+      window.location.replace('admin-login.html');
+    }
+
+    // Inicialização da tela do painel admin
+    document.addEventListener('DOMContentLoaded', () => {
+      setupSessionUser();
+      loadBusinessData();
+      renderServices();
+      renderAppointments();
+      updateMetrics();
+      setupBookingLink();
+      loadRecentAppointments();
+    });
+
+    // Mostra o admin logado na sidebar/topbar e prepara o logout
+    function setupSessionUser() {
+      const user = Auth.currentUser;
+      if (!user) return;
+
+      document.getElementById('sidebar-user-name').innerText = user.name;
+      document.getElementById('sidebar-avatar').innerText = user.name.substring(0, 2).toUpperCase();
+      document.getElementById('topbar-name').innerText = user.name;
+      document.getElementById('topbar-avatar').innerText = user.name.substring(0, 2).toUpperCase();
+      document.getElementById('topbar-greeting').innerText = `Olá, ${user.name.split(' ')[0]} 👑`;
+
+      const plan = document.getElementById('sidebar-user-plan');
+      if (user.role === 'admin') {
+        plan.innerText = '🛡️ Administrador da Plataforma';
+        document.getElementById('sidebar-avatar').style.background = 'linear-gradient(135deg, #7C3AED, #EC4899)';
+        document.getElementById('topbar-role').innerText = 'Administrador';
+      } else {
+        plan.innerText = 'Plano Ativo (R$ 32,90/mês)';
+        document.getElementById('topbar-role').innerText = 'Plano Ativo (R$ 32,90/mês)';
+      }
+    }
+
+    function logout() {
+      Auth.logout();
+      window.location.replace('admin-login.html');
+    }
+
+    // Alternar visibilidade sidebar mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      sidebar.classList.toggle('open');
+      if (backdrop) backdrop.classList.toggle('active');
+    }
+
+    // Navegação por abas
+    function switchTab(tabName) {
+      document.querySelectorAll('.dash-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+
+      const activeSection = document.getElementById(`tab-${tabName}`);
+      if (activeSection) activeSection.classList.add('active');
+
+      event.currentTarget.classList.add('active');
+      document.getElementById('sidebar').classList.remove('open');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (backdrop) backdrop.classList.remove('active');
+    }
+
+    // Carregar dados da empresa nos inputs
+    function loadBusinessData() {
+      const biz = Storage.getBusiness();
+      const user = Auth.currentUser || Storage.getUser();
+
+      if (user && user.name) {
+        document.getElementById('sidebar-user-name').innerText = user.name;
+        document.getElementById('sidebar-avatar').innerText = user.name.substring(0, 2).toUpperCase();
+      }
+
+      document.getElementById('dash-biz-name').value = biz.name || '';
+      document.getElementById('dash-biz-segment').value = biz.segment || 'barbearia';
+      document.getElementById('dash-biz-phone').value = biz.whatsapp ? maskPhone(biz.whatsapp) : '';
+      document.getElementById('dash-biz-address').value = biz.address || '';
+      document.getElementById('dash-biz-hours').value = biz.hours || '';
+      document.getElementById('dash-biz-desc').value = biz.description || '';
+      document.getElementById('dash-biz-color').value = biz.primaryColor || '#7C3AED';
+      document.getElementById('dash-biz-color-text').value = biz.primaryColor || '#7C3AED';
+      document.getElementById('dash-biz-pix').value = biz.pixKey || '';
+      document.getElementById('dash-biz-pix-name').value = biz.pixName || '';
+      window._tempPixQr = biz.pixQr || '';
+      const qrEnabledA = document.getElementById('dash-pix-qr-enabled');
+      if (qrEnabledA) qrEnabledA.checked = !!biz.pixQrEnabled;
+      if (typeof togglePixQr === 'function') togglePixQr();
+      if (biz.pixQr) {
+        const prevA = document.getElementById('pix-qr-preview');
+        if (prevA) prevA.innerHTML = `<img src="${biz.pixQr}" style="width:100%;height:100%;object-fit:contain;">`;
+        const btnA = document.getElementById('btn-copy-qr');
+        if (btnA) btnA.style.display = 'block';
+      }
+
+      loadPaymentConfig(biz);
+      document.getElementById('dash-gateway').value = (biz.paymentConfig && biz.paymentConfig.gateway) || 'none';
+
+      if (biz.logo) {
+        const preview = document.getElementById('logo-preview-img');
+        preview.src = biz.logo;
+        preview.classList.add('show');
+        document.getElementById('logo-upload-text').style.display = 'none';
+      }
+    }
+
+    function loadPaymentConfig(biz) {
+      const cfg = (biz && biz.paymentConfig) || { requireUpfront: false, upfrontPercent: null, gateway: 'none' };
+      const is50 = !!(cfg.requireUpfront && Number(cfg.upfrontPercent) === 50);
+      const toggle = document.getElementById('pay-50-toggle');
+      if (toggle) toggle.checked = is50;
+      const card = document.getElementById('pay-toggle-card');
+      const details = document.getElementById('pay-50-details');
+      if (is50) {
+        if (card) card.classList.add('active');
+        if (details) details.style.display = 'block';
+        const rUp = document.getElementById('payMode-upfront'); if (rUp) rUp.checked = true;
+      } else {
+        if (card) card.classList.remove('active');
+        if (details) details.style.display = 'none';
+        const rFree = document.getElementById('payMode-free'); if (rFree) rFree.checked = true;
+      }
+    }
+    function togglePay50() {
+      const on = document.getElementById('pay-50-toggle').checked;
+      const card = document.getElementById('pay-toggle-card');
+      const details = document.getElementById('pay-50-details');
+      if (on) {
+        if (card) card.classList.add('active');
+        if (details) details.style.display = 'block';
+        const rUp = document.getElementById('payMode-upfront'); if (rUp) rUp.checked = true;
+      } else {
+        if (card) card.classList.remove('active');
+        if (details) details.style.display = 'none';
+        const rFree = document.getElementById('payMode-free'); if (rFree) rFree.checked = true;
+      }
+    }
+    function toggleUpfrontPercent(){ togglePay50(); }
+    function updatePercentPreview() {
+      const biz = Storage.getBusiness();
+      const calc = computePayment(
+        (Storage.getServices()[0] && Storage.getServices()[0].price) || 100,
+        { requireUpfront: true, upfrontPercent: 50 }
+      );
+      showToast(`Sinal de ${calc.percent}% = ${formatMoney(calc.upfrontAmount)}`, 'info');
+    }
+    function togglePixQr(){
+      const on = document.getElementById('dash-pix-qr-enabled')?.checked;
+      const block = document.getElementById('pix-qr-block');
+      if(block) block.style.display = on ? 'block' : 'none';
+    }
+    function handlePixQrUpload(e){
+      const file=e.target.files[0]; if(!file) return;
+      if(file.size>2*1024*1024){ showToast('QR muito grande (max 2MB)','error'); return; }
+      const reader=new FileReader();
+      reader.onload=(ev)=>{
+        window._tempPixQr=ev.target.result;
+        const prev=document.getElementById('pix-qr-preview');
+        if(prev) prev.innerHTML=`<img src="${window._tempPixQr}" style="width:100%;height:100%;object-fit:contain;">`;
+        document.getElementById('btn-copy-qr').style.display='block';
+        showToast('QR carregado! Clique em Salvar.','success');
+      };
+      reader.readAsDataURL(file);
+    }
+    function generatePixQr(){
+      const key=document.getElementById('dash-biz-pix').value.trim();
+      if(!key){ showToast('Digite a chave PIX primeiro','error'); return; }
+      const url=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(key)}`;
+      window._tempPixQr=url;
+      const prev=document.getElementById('pix-qr-preview');
+      if(prev) prev.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:contain;">`;
+      document.getElementById('btn-copy-qr').style.display='block';
+      const chk=document.getElementById('dash-pix-qr-enabled');
+      if(chk && !chk.checked){ chk.checked=true; togglePixQr(); }
+      showToast('QR gerado da chave! Clique em Salvar.','success');
+    }
+    function removePixQr(){
+      window._tempPixQr='';
+      const prev=document.getElementById('pix-qr-preview');
+      if(prev) prev.innerHTML=`<span style="font-size:12px; color:var(--text-faint); text-align:center; padding:10px;">Nenhum QR<br>carregado</span>`;
+      document.getElementById('btn-copy-qr').style.display='none';
+      showToast('QR removido. Salve para confirmar.','info');
+    }
+    function copyPixQr(){
+      const biz=Storage.getBusiness();
+      const qr=window._tempPixQr || biz.pixQr;
+      if(!qr){ showToast('Nenhum QR para copiar','error'); return; }
+      if(qr.startsWith('data:')){
+        const a=document.createElement('a'); a.href=qr; a.download='qrcode-pix.png'; a.click();
+        showToast('QR baixado!','success');
+      } else {
+        navigator.clipboard.writeText(qr).then(()=> showToast('Link do QR copiado!','success'));
+        window.open(qr,'_blank');
+      }
+    }
+
+    function updateColorText(val) {
+      document.getElementById('dash-biz-color-text').value = val;
+    }
+
+    function handleLogoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target.result;
+        const preview = document.getElementById('logo-preview-img');
+        preview.src = base64;
+        preview.classList.add('show');
+        document.getElementById('logo-upload-text').style.display = 'none';
+        const biz = Storage.getBusiness();
+        biz.logo = base64;
+        Storage.setBusiness(biz);
+        showToast('Logo atualizada com sucesso!', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveBusinessData(e) {
+      e.preventDefault();
+      const biz = Storage.getBusiness();
+      biz.name = document.getElementById('dash-biz-name').value.trim();
+      biz.segment = document.getElementById('dash-biz-segment').value;
+      biz.whatsapp = document.getElementById('dash-biz-phone').value.replace(/\D/g, '');
+      biz.address = document.getElementById('dash-biz-address').value.trim();
+      biz.hours = document.getElementById('dash-biz-hours').value.trim();
+      biz.description = document.getElementById('dash-biz-desc').value.trim();
+      biz.primaryColor = document.getElementById('dash-biz-color').value;
+      biz.pixKey = document.getElementById('dash-biz-pix').value.trim();
+      biz.pixName = document.getElementById('dash-biz-pix-name').value.trim();
+      biz.pixQr = (typeof window._tempPixQr !== 'undefined' ? window._tempPixQr : biz.pixQr) || '';
+      biz.pixQrEnabled = !!document.getElementById('dash-pix-qr-enabled')?.checked;
+
+      const pay50on = document.getElementById('pay-50-toggle') ? document.getElementById('pay-50-toggle').checked : false;
+      const requireUpfront = !!pay50on;
+      const upfrontPercent = requireUpfront ? 50 : null;
+      const rUp = document.getElementById('payMode-upfront'); if (rUp) rUp.checked = requireUpfront;
+      const rFree = document.getElementById('payMode-free'); if (rFree) rFree.checked = !requireUpfront;
+      biz.paymentConfig = {
+        requireUpfront,
+        upfrontPercent,
+        gateway: document.getElementById('dash-gateway').value || 'none'
+      };
+
+      Storage.setBusiness(biz);
+      PaymentGateway.setActiveGateway(biz.paymentConfig.gateway);
+      showToast('Informações salvas com sucesso!', 'success');
+    }
+
+    // Gerenciamento de Serviços
+    function renderServices() {
+      const services = Storage.getServices();
+      const container = document.getElementById('services-container');
+      container.innerHTML = '';
+      if (services.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhum serviço cadastrado ainda.</p>';
+        return;
+      }
+      services.forEach(svc => {
+        const div = document.createElement('div');
+        div.className = 'service-item';
+        div.innerHTML = `
+          <div class="svc-icon">${svc.icon || '✨'}</div>
+          <div class="service-info">
+            <div class="name">${svc.name}</div>
+            <div class="meta">
+              <span>⏱️ ${svc.duration}</span>
+              <span style="color: var(--primary); font-weight: 700;">${formatMoney(svc.price)}</span>
+            </div>
+          </div>
+          <div class="service-actions">
+            <button class="btn btn-outline btn-sm" onclick="editService('${svc.id}')">✏️ Editar</button>
+            <button class="btn btn-outline btn-sm" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" onclick="deleteService('${svc.id}')">🗑️</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      document.getElementById('stat-services-count').innerText = services.length;
+    }
+
+    function openServiceModal() {
+      document.getElementById('modal-service-title').innerText = 'Adicionar Novo Serviço';
+      document.getElementById('service-id').value = '';
+      document.getElementById('form-service').reset();
+      document.getElementById('service-modal').classList.add('show');
+    }
+    function closeServiceModal() {
+      document.getElementById('service-modal').classList.remove('show');
+    }
+    function editService(id) {
+      const services = Storage.getServices();
+      const svc = services.find(s => s.id === id);
+      if (!svc) return;
+      document.getElementById('modal-service-title').innerText = 'Editar Serviço';
+      document.getElementById('service-id').value = svc.id;
+      document.getElementById('service-name').value = svc.name;
+      document.getElementById('service-price').value = svc.price;
+      document.getElementById('service-duration').value = svc.duration;
+      document.getElementById('service-icon').value = svc.icon || '✨';
+      document.getElementById('service-modal').classList.add('show');
+    }
+    function saveService(e) {
+      e.preventDefault();
+      const id = document.getElementById('service-id').value;
+      const name = document.getElementById('service-name').value.trim();
+      const price = parseFloat(document.getElementById('service-price').value);
+      const duration = document.getElementById('service-duration').value.trim();
+      const icon = document.getElementById('service-icon').value.trim() || '✨';
+      const services = Storage.getServices();
+      if (id) {
+        const index = services.findIndex(s => s.id === id);
+        if (index !== -1) services[index] = { id, name, price, duration, icon };
+      } else {
+        services.push({ id: 'svc-' + Date.now(), name, price, duration, icon });
+      }
+      Storage.setServices(services);
+      closeServiceModal();
+      renderServices();
+      showToast('Serviço salvo com sucesso!', 'success');
+    }
+    function deleteService(id) {
+      if (!confirm('Deseja realmente remover este serviço?')) return;
+      let services = Storage.getServices();
+      services = services.filter(s => s.id !== id);
+      Storage.setServices(services);
+      renderServices();
+      showToast('Serviço removido!', 'info');
+    }
+
+    // Helper: dados de pagamento do agendamento
+    function paymentDetails(apt) {
+      const total = Number(apt.price) || 0;
+      const paid = Number(apt.paidAmount) || 0;
+      const remaining = Number(apt.remainingAmount);
+      const hasPaymentInfo = apt.paidAmount !== undefined || apt.paymentStatus !== undefined;
+      return {
+        total,
+        paid: hasPaymentInfo ? paid : (apt.status === 'confirmed' ? total : 0),
+        remaining: hasPaymentInfo ? (isNaN(remaining) ? (total - paid) : remaining) : (apt.status === 'confirmed' ? 0 : total),
+        method: apt.method || (apt.pixKey ? 'pix' : '—')
+      };
+    }
+    function methodLabel(method) {
+      const m = (method || '').toLowerCase();
+      if (m === 'pix') return 'PIX';
+      if (m === 'card') return 'Cartão';
+      if (m === 'cash' || m === 'dinheiro') return 'Dinheiro';
+      return '—';
+    }
+
+    // Renderizar Tabela de Agendamentos
+    function renderAppointments() {
+      const apts = Storage.getAppointments();
+      const tbody = document.getElementById('appointments-container');
+      tbody.innerHTML = '';
+      if (apts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">Nenhum agendamento ainda.</td></tr>';
+        return;
+      }
+      apts.forEach(apt => {
+        const tr = document.createElement('tr');
+        const pd = paymentDetails(apt);
+        const clientCleanPhone = (apt.clientPhone || '').replace(/\D/g, '');
+        const waMsg = encodeURIComponent(`Olá ${apt.clientName}! Sobre seu agendamento de ${apt.serviceName} para o dia ${apt.date} às ${apt.time}.`);
+        const waLink = `https://wa.me/55${clientCleanPhone}?text=${waMsg}`;
+        let statusBadge = '<span class="status-badge status-confirmed">Confirmado</span>';
+        if (apt.status === 'pending') statusBadge = '<span class="status-badge status-pending">Pendente</span>';
+        if (apt.status === 'cancelled') statusBadge = '<span class="status-badge status-cancelled">Cancelado</span>';
+        tr.innerHTML = `
+          <td><strong>${apt.clientName}</strong><div style="font-size: 12px; color: var(--text-faint);">${maskPhone(apt.clientPhone || '')}</div></td>
+          <td>${apt.serviceName}</td><td>${apt.date} às <strong>${apt.time}</strong></td>
+          <td style="color: var(--primary); font-weight: 600;">${formatMoney(pd.total)}</td>
+          <td style="color: var(--success); font-weight: 600;">${formatMoney(pd.paid)}</td>
+          <td style="color: var(--warning); font-weight: 600;">${formatMoney(pd.remaining)}</td>
+          <td>${methodLabel(pd.method)}</td>
+          <td>${apt.paymentStatus ? paymentStatusLabel(apt.paymentStatus) : statusBadge}</td>
+          <td>${statusBadge}</td>
+          <td><a href="${waLink}" target="_blank" class="btn btn-outline btn-sm" title="Conversar no WhatsApp">📲 WhatsApp</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function paymentStatusLabel(paymentStatus) {
+      switch (paymentStatus) {
+        case PAYMENT_STATUS.PENDING: return '<span class="status-badge status-pending">Pendente</span>';
+        case PAYMENT_STATUS.PAID: return '<span class="status-badge status-confirmed">Pago</span>';
+        case PAYMENT_STATUS.PARTIAL: return '<span class="status-badge status-pending">Pagamento parcial</span>';
+        case PAYMENT_STATUS.CANCELLED: return '<span class="status-badge status-cancelled">Cancelado</span>';
+        case PAYMENT_STATUS.REFUNDED: return '<span class="status-badge status-cancelled">Reembolsado</span>';
+        default: return '<span class="status-badge status-confirmed">Pago (presencial)</span>';
+      }
+    }
+
+    function updateMetrics() {
+      const apts = Storage.getAppointments();
+      document.getElementById('stat-total-apts').innerText = apts.length;
+      const totalRevenue = apts.reduce((acc, curr) => acc + Number(curr.price || 0), 0);
+      document.getElementById('stat-revenue').innerText = formatMoney(totalRevenue);
+      const services = Storage.getServices();
+      document.getElementById('stat-services-count').innerText = services.length;
+    }
+
+    function setupBookingLink() {
+      const url = window.location.origin + window.location.pathname.replace('admin-dashboard.html', 'agendamento.html');
+      document.getElementById('booking-link-text').innerText = url;
+    }
+    function copyBookingLink() {
+      const link = document.getElementById('booking-link-text').innerText;
+      navigator.clipboard.writeText(link).then(() => showToast('Link copiado!', 'success')).catch(() => showToast('Link copiado!', 'success'));
+    }
+    function shareOnWhatsApp() {
+      const link = document.getElementById('booking-link-text').innerText;
+      const biz = Storage.getBusiness();
+      const msg = encodeURIComponent(`Olá! Agende seu horário online no ${biz.name} de forma rápida e prática através do link: ${link}`);
+      window.location.href = `https://api.whatsapp.com/send?text=${msg}`;
+    }
+
+    // Agendamentos recentes na visão geral
+    function loadRecentAppointments() {
+      const apts = Storage.getAppointments().slice(0, 3);
+      const container = document.getElementById('recent-apts');
+      if (!apts.length) { container.innerHTML = '<p>Nenhum agendamento até agora.</p>'; return; }
+      let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+      apts.forEach(a => {
+        const pd = paymentDetails(a);
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border-light);border-radius:10px;background:var(--bg-input);">
+          <div><strong>${a.clientName}</strong><div style="font-size:12px;color:var(--text-muted);">${a.serviceName} · ${a.date} às ${a.time}</div></div>
+          <div style="text-align:right;"><div style="font-weight:700;color:var(--primary);">${formatMoney(a.price)}</div><div style="font-size:12px;color:var(--text-muted);">${pd.paid ? formatMoney(pd.paid)+' pago' : 'Não pago'}</div></div>
+        </div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
