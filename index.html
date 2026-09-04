@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendit</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">
+        <div class="logo-icon">🗓️</div>
+            <span>Agend<span class="text-gradient">it</span></span>
+      </a>
+
+      <div class="navbar-links">
+        <a href="#como-funciona">Como Funciona</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#precos">Preços</a>
+      </div>
+
+      <div class="navbar-cta">
+        <a href="login.html" class="btn btn-outline btn-sm desktop-only">Acessar Painel</a>
+        <a href="checkout.html" class="btn btn-primary btn-sm">Começar</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir Menu" onclick="toggleNavMenu()">☰</button>
+      </div>
+    </div>
+    <!-- MOBILE MENU DRAWER -->
+    <div class="mobile-nav" id="mobile-nav">
+      <a href="#como-funciona" onclick="closeNavMenu()">Como Funciona</a>
+      <a href="#recursos" onclick="closeNavMenu()">Recursos</a>
+      <a href="#precos" onclick="closeNavMenu()">Preços</a>
+      <a href="login.html" onclick="closeNavMenu()">Acessar Painel</a>
+      <a href="checkout.html" class="btn btn-primary btn-sm" onclick="closeNavMenu()">Começar</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <h1>
+            Chega de perder clientes no WhatsApp.<br>
+            <span class="text-gradient">Sua agenda online profissional.</span>
+          </h1>
+          <p>
+            Seus clientes agendam sozinhos e você recebe a notificação no WhatsApp.
+          </p>
+
+          <div class="hero-cta">
+            <a href="checkout.html" class="btn btn-primary btn-lg">
+              Começar Agora por R$ 19,90
+            </a>
+            <a href="agendamento.html" target="_blank" class="btn btn-outline btn-lg">
+              Ver Demonstração
+            </a>
+          </div>
+        </div>
+
+        <div class="mockup-wrapper">
+          <div class="phone-mockup">
+            <div class="phone-notch">
+              <div class="phone-notch-speaker"></div>
+              <div class="phone-notch-camera"></div>
+            </div>
+
+            <div class="phone-screen">
+              <div class="phone-top-bar">
+                <span>09:41</span>
+                <span>📶 🔋 100%</span>
+              </div>
+
+              <div class="mockup-biz-header">
+                <div class="biz-logo">💈</div>
+                <div class="biz-title">Studio VIP Barber</div>
+                <div class="biz-tag">⭐ 4.9 (148 avaliações)</div>
+              </div>
+
+              <div class="mockup-section-label">Serviço</div>
+              <div class="mockup-svc-card active">
+                <div class="mockup-svc-icon">✂️</div>
+                <div class="mockup-svc-info">
+                  <div class="mockup-svc-name">Corte Degradê + Barba</div>
+                  <div class="mockup-svc-time">⏱️ 1h 15 min</div>
+                </div>
+                <div class="mockup-svc-price">R$ 70,00</div>
+              </div>
+
+              <div class="mockup-section-label">Data</div>
+              <div class="mockup-dates-row">
+                <div class="mockup-date-chip">Hoje<br><strong>03</strong></div>
+                <div class="mockup-date-chip active">Amanhã<br><strong>04</strong></div>
+                <div class="mockup-date-chip">Sáb<br><strong>05</strong></div>
+              </div>
+
+              <div class="mockup-section-label">Horário</div>
+              <div class="mockup-times-row">
+                <div class="mockup-time-chip">10:00</div>
+                <div class="mockup-time-chip active">14:30</div>
+                <div class="mockup-time-chip">16:00</div>
+              </div>
+
+              <div style="margin-top: auto;">
+                <a href="agendamento.html" target="_blank" class="mockup-confirm-btn" style="text-decoration: none;">
+                  <span>📲 Confirmar no WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Como funciona?</h2>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">🔗</div>
+          <h3>1. Compartilhe seu link</h3>
+          <p>Coloque na bio do Instagram ou WhatsApp.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">📅</div>
+          <h3>2. Cliente agenda sozinho</h3>
+          <p>Escolhe o serviço, o dia e o horário.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">📲</div>
+          <h3>3. Receba no WhatsApp</h3>
+          <p>Você é notificado na hora, sem complicação.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECURSOS -->
+  <section id="recursos" class="section" style="background: rgba(26, 16, 48, 0.3);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Feito para o seu negócio</h2>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">📲</div>
+          <h3>Avisos no WhatsApp</h3>
+          <p>Confirmações automáticas que zeram faltas e atrasos.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🎨</div>
+          <h3>Sua identidade</h3>
+          <p>Logo, cores e descrição do seu espaço com visual profissional.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⏱️</div>
+          <h3>Horários em tempo real</h3>
+          <p>Bloqueia horários preenchidos e evita duplicados.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <h3>Painel de controle</h3>
+          <p>Acompanhe agendamentos e faturamento do dia, semana e mês.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK / DEPOIMENTOS -->
+  <section id="depoimentos" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Quem usa, recomenda</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">
+            "Acabou a correria de responder mensagem o dia todo. A agenda se preenche sozinha e o cliente confirma no WhatsApp."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">L</div>
+            <div>
+              <div class="testimonial-name">Lucas Oliveira</div>
+              <div class="testimonial-role">Dom Lucas Estúdio</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">
+            "Meus clientes amam poder escolher o horário sozinhos. Faturei mais e parei de perder vaga por falta."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">B</div>
+            <div>
+              <div class="testimonial-name">Bella Campos</div>
+              <div class="testimonial-role">Bella Studio</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testimonial-text">
+            "Simples de configurar, minha logo e minhas cores já ficaram prontas. Recebo o pagamento via PIX na hora."
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">G</div>
+            <div>
+              <div class="testimonial-name">Gabriel Rocha</div>
+              <div class="testimonial-role">Geovana Estética</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREÇOS -->
+  <section id="precos" class="section pricing-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Simples e sem surpresas</h2>
+      </div>
+
+      <div class="pricing-cards">
+        <div class="pricing-card featured">
+          <div class="pricing-name">Plano Profissional</div>
+          <div class="pricing-price">
+            <span class="currency">R$</span>
+            <span class="amount text-gradient">19,90</span>
+            <span class="period">no 1º mês</span>
+          </div>
+          <p class="pricing-desc">
+            Depois apenas <strong>R$ 39,90/mês</strong>. Cancele quando quiser.
+          </p>
+
+          <ul class="pricing-features">
+            <li><span class="check">✔</span> Agendamentos ilimitados</li>
+            <li><span class="check">✔</span> Página com sua logo e marca</li>
+            <li><span class="check">✔</span> Notificações automáticas via WhatsApp</li>
+            <li><span class="check">✔</span> Painel gerencial de clientes</li>
+          </ul>
+
+          <a href="checkout.html" class="btn btn-primary btn-lg btn-full">
+            Garantir 1º Mês por R$ 19,90
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Pronto para simplificar sua agenda?</h2>
+      <a href="checkout.html" class="btn btn-primary btn-lg">
+        Criar Minha Página Agora
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="navbar-brand">
+            <div class="logo-icon">✨</div>
+        <span>Agend<span class="text-gradient">it</span></span>
+          </div>
+          <p>Agendamento online simples para profissionais da beleza.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Plataforma</h4>
+          <ul>
+            <li><a href="index.html">Início</a></li>
+            <li><a href="checkout.html">Planos</a></li>
+            <li><a href="login.html">Acessar Painel</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Recursos</h4>
+          <ul>
+            <li><a href="#recursos">Agendamento online</a></li>
+            <li><a href="#recursos">Notificações no WhatsApp</a></li>
+            <li><a href="#recursos">Pagamento via PIX</a></li>
+            <li><a href="#recursos">Painel de controle</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Agendit. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

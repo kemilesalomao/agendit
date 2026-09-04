@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamento Online</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+</head>
+<body class="booking-page">
+
+  <!-- CABEÇALHO DO ESTABELECIMENTO -->
+  <header class="booking-header" id="booking-header" style="position: relative;">
+    <a href="index.html" class="booking-back-btn" title="Voltar para o início">← Voltar</a>
+    <div id="logo-container">
+      <div class="booking-logo-placeholder" id="header-logo-placeholder">✨</div>
+      <img id="header-logo-img" class="booking-logo" style="display: none;" alt="Logo da Empresa">
+    </div>
+    <h1 class="booking-company-name" id="header-company-name">Studio VIP</h1>
+    <p class="booking-company-desc" id="header-company-desc">Converse com nosso assistente e agende seu horário em menos de 1 minuto.</p>
+    <div style="margin-top: 14px; font-size: 13px; opacity: 0.9; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <span id="header-company-hours">🕒 Seg a Sáb: 09h às 19h</span>
+      <span id="header-company-address">📍 Endereço do Estabelecimento</span>
+    </div>
+  </header>
+
+  <!-- PAINEL DE AGENDAMENTO 100% VIA CHATBOT -->
+  <main class="booking-content booking-chat-mode">
+
+    <div id="booking-chat-flow">
+      <div class="chat-main-card" id="chat-main-card">
+        <div class="chat-main-header">
+          <button class="chat-main-back" id="chat-back-btn" onclick="goBackChat()" title="Voltar" style="display: none;">←</button>
+          <div class="chat-main-header-avatar">💬</div>
+          <div>
+            <div class="chat-main-header-title">Assistente de Agendamento</div>
+            <div class="chat-main-header-sub"><span style="display:inline-block;width:8px;height:8px;background:#10B981;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>Online agora — responde na hora</div>
+          </div>
+          <button class="chat-main-restart" onclick="restartChat()" title="Recomeçar conversa">↻</button>
+        </div>
+
+        <div class="chat-main-messages" id="chat-main-messages"></div>
+
+        <div class="chat-main-options" id="chat-main-options"></div>
+
+        <div class="chat-main-input-area" id="chat-main-input-area" style="display: none;">
+          <!-- input injetado via JS -->
+        </div>
+      </div>
+
+      <!-- MODAL DE PAGAMENTO (reutilizado pelo chat) -->
+      <div class="payment-modal-overlay" id="payment-modal">
+        <div class="payment-modal">
+          <div class="payment-modal-header">
+            <div style="font-weight: 800; font-size: 18px;" id="pm-title">Pagamento</div>
+            <button type="button" class="payment-modal-close" onclick="closePaymentModal()">✕</button>
+          </div>
+          <div id="pm-status-msg" class="payment-modal-status"></div>
+          <div id="pm-pix-content" style="display: none;">
+            <div style="text-align: center; margin-bottom: 12px;">
+              <div style="font-size: 13px; color: #6b5a8e; margin-bottom: 8px;">Transfira o valor abaixo usando a chave PIX:</div>
+              <div style="font-size: 26px; font-weight: 900; color: #7C3AED;" id="pm-pix-amount">R$ 0,00</div>
+            </div>
+            <div id="pm-qr-wrap" style="display: none; text-align: center; margin-bottom: 14px; background: #fff; border: 1.5px solid #e8e0f7; border-radius: 12px; padding: 14px;">
+              <div style="font-size: 12px; color: #5b21b6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">QR Code PIX enviado pelo estabelecimento</div>
+              <img id="pm-qr-img" style="width: 180px; height: 180px; border-radius: 10px; margin: 0 auto; display: block; background: #fff; object-fit: contain;" alt="QR Code PIX">
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button type="button" class="btn btn-outline btn-sm" style="flex: 1;" onclick="copyPixQrFromModal()">📋 Copiar QR Code</button>
+                <button type="button" class="btn btn-ghost btn-sm" style="flex: 1;" onclick="downloadPixQr()">⬇️ Baixar QR</button>
+              </div>
+            </div>
+            <div style="background: #ede9fe; border-radius: 12px; padding: 16px; margin-bottom: 14px;">
+              <div style="font-size: 12px; color: #5b21b6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Chave PIX do Estabelecimento</div>
+              <div id="pm-pix-key" style="font-size: 15px; font-weight: 700; color: #1a1030; word-break: break-all; margin-bottom: 4px;">—</div>
+              <div id="pm-pix-name" style="font-size: 13px; color: #6b5a8e;">—</div>
+            </div>
+            <button type="button" class="booking-btn" style="width: 100%; margin-bottom: 8px;" onclick="copyPixKey()">📋 Copiar Chave PIX</button>
+            <button type="button" class="booking-btn" style="width: 100%; background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 8px 24px rgba(16,185,129,0.35);" onclick="confirmPixPayment()">✅ Já realizei o pagamento</button>
+          </div>
+          <div id="pm-card-content" style="display: none;">
+            <form id="pm-card-form" onsubmit="processCardPayment(event)">
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label" for="pm-card-number">Número do cartão</label>
+                <input type="text" id="pm-card-number" class="form-input" placeholder="0000 0000 0000 0000" required oninput="this.value = maskCardNumber(this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label" for="pm-card-holder">Nome no cartão</label>
+                <input type="text" id="pm-card-holder" class="form-input" placeholder="Como está no cartão" required>
+              </div>
+              <div class="form-grid" style="margin-bottom: 14px;">
+                <div class="form-group">
+                  <label class="form-label" for="pm-card-expiry">Validade</label>
+                  <input type="text" id="pm-card-expiry" class="form-input" placeholder="MM/AA" required oninput="this.value = maskCardExpiry(this.value)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pm-card-cvv">CVV</label>
+                  <input type="password" id="pm-card-cvv" class="form-input" placeholder="123" maxlength="4" required>
+                </div>
+              </div>
+              <div style="background: #f1f0ff; border: 1px solid #e8e0f7; border-radius: 10px; padding: 12px; font-size: 13px; color: #6b5a8e; margin-bottom: 16px;">🔒 Pagamento processado com segurança por gateway. Seus dados de cartão não são armazenados.</div>
+              <button type="submit" class="booking-btn" style="width: 100%;" id="pm-card-submit">Pagar agora</button>
+            </form>
+          </div>
+          <div id="pm-processing" style="display: none; text-align: center; padding: 20px;">
+            <div class="spinner"></div>
+            <div style="margin-top: 12px; color: #6b5a8e;">Processando pagamento...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA DE SUCESSO -->
+    <div class="booking-success" id="booking-success" style="position: relative;">
+      <button onclick="resetBookingFlow()" class="booking-back-btn" style="position: absolute; top: 16px; left: 16px; background: #f8f5ff; border: 1px solid #e8e0f7; color: #6b5a8e;" title="Voltar">← Voltar</button>
+      <div class="booking-success-icon">🎉</div>
+      <h2>Agendamento Realizado com Sucesso!</h2>
+      <p id="success-message">Seu horário foi reservado com sucesso! A notificação oficial já está pronta para envio no WhatsApp.</p>
+      <div style="background: #f8f5ff; border: 1.5px solid #e8e0f7; border-radius: 14px; padding: 20px; text-align: left; margin: 24px 0;">
+        <div style="font-size: 12px; font-weight: 700; color: #7C3AED; text-transform: uppercase; margin-bottom: 10px;">Detalhes da Reserva:</div>
+        <div style="font-size: 14px; margin-bottom: 6px;" id="success-detail-service"></div>
+        <div style="font-size: 14px; margin-bottom: 6px;" id="success-detail-date"></div>
+        <div style="font-size: 14px; margin-bottom: 6px;" id="success-detail-client"></div>
+        <div style="font-size: 15px; font-weight: 700; color: #7C3AED; margin-top: 8px;" id="success-detail-price"></div>
+        <div id="success-payment-summary" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #c4b5fd;"></div>
+      </div>
+      <div id="payment-success-block" class="booking-form" style="display: none; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+          <span style="font-size: 24px;">⚡</span>
+          <div style="font-weight: 700; font-size: 16px;">Para concluir, faça o pagamento via PIX</div>
+        </div>
+        <div style="background: #ede9fe; border-radius: 12px; padding: 16px; margin-bottom: 14px;">
+          <div style="font-size: 12px; color: #5b21b6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Chave PIX do Estabelecimento</div>
+          <div id="pix-key-success" style="font-size: 15px; font-weight: 700; color: #1a1030; word-break: break-all; margin-bottom: 4px;">—</div>
+          <div id="pix-name-success" style="font-size: 13px; color: #6b5a8e;">—</div>
+        </div>
+        <div id="pix-value-success" style="text-align: center; font-size: 20px; font-weight: 800; color: #7C3AED; margin-bottom: 14px;"></div>
+        <button type="button" class="booking-btn" onclick="copyPixKey()" style="width: 100%;">📋 Copiar Chave PIX</button>
+      </div>
+      <a id="whatsapp-notify-btn" href="#" class="whatsapp-btn"><span>📲 Abrir Notificação no WhatsApp</span></a>
+      <div style="margin-top: 24px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="resetBookingFlow()" style="color: #6b5a8e; border-color: #e8e0f7;">Fazer Outro Agendamento</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // Horários disponíveis
+    const TIME_SLOTS = ['09:00','09:45','10:30','11:15','13:00','14:00','15:00','16:00','17:00','18:00','18:45','19:30'];
+
+    // Estado do agendamento via chat
+    let chatName = '';
+    let chatPhone = '';
+    let chatNotes = '';
+    let chatService = null;
+    let chatDate = null;
+    let chatTime = null;
+    let pendingBooking = null;
+
+    const chatMessages = document.getElementById('chat-main-messages');
+    const chatOptions = document.getElementById('chat-main-options');
+    const chatInputArea = document.getElementById('chat-main-input-area');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBusinessProfile();
+      startConversation();
+    });
+
+    function loadBusinessProfile() {
+      const biz = Storage.getBusiness();
+      document.title = `Agendar Horário — ${biz.name}`;
+      document.getElementById('header-company-name').innerText = biz.name;
+      if (biz.description) document.getElementById('header-company-desc').innerText = biz.description;
+      if (biz.hours) document.getElementById('header-company-hours').innerText = `🕒 ${biz.hours}`;
+      if (biz.address) document.getElementById('header-company-address').innerText = `📍 ${biz.address}`; else document.getElementById('header-company-address').style.display = 'none';
+      if (biz.primaryColor) document.getElementById('booking-header').style.background = `linear-gradient(135deg, ${biz.primaryColor}, #4C1D95)`;
+      if (biz.logo) {
+        const logoImg = document.getElementById('header-logo-img');
+        logoImg.src = biz.logo; logoImg.style.display = 'block';
+        document.getElementById('header-logo-placeholder').style.display = 'none';
+      }
+    }
+
+    // ===== Helpers do chat =====
+    function botSay(text) {
+      const msg = document.createElement('div');
+      msg.className = 'chatbot-msg bot';
+      msg.innerText = text;
+      chatMessages.appendChild(msg);
+      scrollChat();
+    }
+    function userSay(text) {
+      const msg = document.createElement('div');
+      msg.className = 'chatbot-msg user';
+      msg.innerText = text;
+      chatMessages.appendChild(msg);
+      scrollChat();
+    }
+    function showTyping(callback) {
+      const typing = document.createElement('div');
+      typing.className = 'chatbot-typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      chatMessages.appendChild(typing);
+      scrollChat();
+      setTimeout(() => { typing.remove(); callback(); }, 650);
+    }
+    function botAsk(text, options) {
+      if (text) botSay(text);
+      chatOptions.innerHTML = '';
+      hideChatInput();
+      options.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = 'chatbot-option-btn';
+        b.innerHTML = opt.label;
+        b.onclick = () => { chatOptions.innerHTML=''; opt.action(); };
+        chatOptions.appendChild(b);
+      });
+      scrollChat();
+    }
+    function showChatInput(placeholder, buttonLabel, onSubmit, type='text') {
+      chatOptions.innerHTML = '';
+      chatInputArea.style.display = 'flex';
+      chatInputArea.innerHTML = `
+        <input type="${type}" id="chat-text-input" class="form-input" placeholder="${placeholder}" style="flex:1; background:#fff; border-color:#e8e0f7;">
+        <button class="booking-btn" style="width:auto; padding:12px 18px; font-size:14px; white-space:nowrap;" id="chat-submit-btn">${buttonLabel}</button>
+      `;
+      const input = document.getElementById('chat-text-input');
+      if (type==='tel') input.oninput = () => { input.value = maskPhone(input.value); };
+      setTimeout(()=> input.focus(), 80);
+      input.addEventListener('keydown', (e)=> { if(e.key==='Enter') onSubmit(); });
+      document.getElementById('chat-submit-btn').onclick = onSubmit;
+      scrollChat();
+    }
+    function hideChatInput() {
+      chatInputArea.style.display = 'none';
+      chatInputArea.innerHTML='';
+    }
+    function scrollChat() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      setTimeout(()=> chatMessages.scrollTop = chatMessages.scrollHeight, 80);
+    }
+
+    // ===== Fluxo conversacional =====
+    function startConversation() {
+      const biz = Storage.getBusiness();
+      const bizName = (biz && biz.name) || 'o estabelecimento';
+      botSay(`Olá! 👋 Bem-vindo(a) ao ${bizName}.\nEu sou seu assistente de agendamento e vou te atender por aqui mesmo, sem precisar preencher formulário.`);
+      setTimeout(()=> askName(), 600);
+    }
+
+    function askName() {
+      botSay('Para começar, qual é o seu nome?');
+      showChatInput('Ex: Fernanda', 'Continuar →', submitName);
+    }
+    function submitName() {
+      const inp = document.getElementById('chat-text-input');
+      chatName = inp ? inp.value.trim() : '';
+      if (!chatName || chatName.length < 2) { botSay('Por favor, digite seu nome para continuarmos 😊'); return; }
+      userSay(chatName);
+      hideChatInput();
+      updateBackBtn();
+      setTimeout(()=> askService(), 400);
+    }
+
+    function askService() {
+      showTyping(()=> {
+        botAsk(`Olá, ${chatName}! 👋 Qual serviço você tem interesse?`, getServiceOptions());
+      });
+    }
+    function getServiceOptions() {
+      const services = Storage.getServices();
+      return services.map(svc => ({
+        label: `${svc.icon||'✨'} <b>${svc.name}</b> — ${formatMoney(svc.price)} <span style="color:#6b5a8e;font-weight:400;">· ${svc.duration}</span>`,
+        action: () => selectChatService(svc)
+      }));
+    }
+    function selectChatService(svc) {
+      chatService = svc;
+      userSay(`${svc.icon||'✨'} ${svc.name} — ${formatMoney(svc.price)}`);
+      updateBackBtn();
+      showTyping(()=> askDate());
+    }
+
+    function getDateOptions() {
+      const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      const today = new Date();
+      const out=[];
+      for(let i=0;i<7;i++){
+        const d=new Date(); d.setDate(today.getDate()+i);
+        out.push({ raw: d.toISOString().split('T')[0], label: `${i===0?'Hoje':(i===1?'Amanhã':days[d.getDay()])} · ${d.getDate()}/${d.getMonth()+1}`, display: `${d.getDate()}/${d.getMonth()+1} (${days[d.getDay()]})` });
+      }
+      return out;
+    }
+    function askDate() {
+      botSay('Ótimo escolha! Agora me diga, qual dia prefere?');
+      const opts = getDateOptions().map(d=> ({ label:`<b>${d.label}</b>`, action:()=> selectChatDate(d) }));
+      botAsk('', opts);
+    }
+    function selectChatDate(d) {
+      chatDate = d;
+      userSay(`📅 ${d.label}`);
+      updateBackBtn();
+      showTyping(()=> askTime());
+    }
+    function askTime() {
+      botSay(`Perfeito, ${dLabel(chatDate)}! Qual horário prefere?`);
+      const opts = TIME_SLOTS.map(t=> ({ label:`<b>${t}</b>`, action:()=> selectChatTime(t) }));
+      botAsk('', opts);
+    }
+    function dLabel(d){ return d?d.label:''; }
+    function selectChatTime(t) {
+      chatTime = t;
+      userSay(`⏰ ${t}`);
+      updateBackBtn();
+      showTyping(()=> askPhone());
+    }
+
+    function askPhone() {
+      botSay('Qual seu WhatsApp com DDD? É por lá que enviaremos a confirmação 📲');
+      showChatInput('(11) 98888-8888', 'Continuar →', submitPhone, 'tel');
+    }
+    function submitPhone() {
+      const inp = document.getElementById('chat-text-input');
+      let v = inp ? inp.value.trim() : '';
+      const digits = v.replace(/\D/g,'');
+      if (digits.length < 10) { botSay('Digite um WhatsApp válido com DDD, ex: (11) 98888-8888'); return; }
+      chatPhone = v;
+      userSay(chatPhone);
+      hideChatInput();
+      chatNotes = '';
+      updateBackBtn();
+      setTimeout(()=> showSummary(), 400);
+    }
+
+    function showSummary() {
+      const cfg = Storage.getPaymentConfig();
+      const calc = computePayment(chatService.price, cfg);
+      let txt = `Confira seu agendamento, ${chatName}:\n\n✂️ ${chatService.name}\n📅 ${chatDate.label} às ${chatTime}\n👤 ${chatName} — ${chatPhone}\n💰 ${formatMoney(calc.total)}`;
+      if(chatNotes) txt += `\n📝 ${chatNotes}`;
+      if(calc.requiresUpfront) txt += `\n\n💳 Sinal para confirmar: ${formatMoney(calc.upfrontAmount)} (${calc.percent}%)\nRestante presencial: ${formatMoney(calc.remainingAmount)}`;
+      else txt += `\n\nPagamento presencial no atendimento.`;
+      botSay(txt);
+      setTimeout(()=>{
+        if(calc.requiresUpfront) showPaymentOptions(calc);
+        else botAsk('Tudo certo para confirmar?', [ {label:'✅ Sim, confirmar agendamento', action: confirmFreeBooking}, {label:'↻ Recomeçar', action: restartChat} ]);
+      }, 500);
+    }
+
+    function showPaymentOptions(calc){
+      const biz = Storage.getBusiness();
+      const hasPix = biz && biz.pixKey && biz.pixKey.trim();
+      botSay('Para garantir seu horário, é necessário pagar o sinal. Se o pagamento não for aprovado, o horário não será confirmado e você poderá tentar novamente.');
+      const opts=[];
+      if(hasPix) opts.push({label:`⚡ Pagar com PIX — ${formatMoney(calc.upfrontAmount)}`, action: startPixPayment});
+      opts.push({label:`💳 Pagar com Cartão — ${formatMoney(calc.upfrontAmount)}`, action: startCardPayment});
+      opts.push({label:'↻ Recomeçar', action: restartChat});
+      botAsk('Como deseja pagar o sinal?', opts);
+    }
+
+    function buildPending(){
+      return { clientName: chatName, clientPhone: chatPhone, clientNotes: chatNotes, service: chatService, dateRaw: chatDate.raw, dateDisplay: chatDate.label, time: chatTime };
+    }
+    function startPixPayment(){
+      pendingBooking = buildPending();
+      openPaymentModal('pix');
+    }
+    function startCardPayment(){
+      pendingBooking = buildPending();
+      openPaymentModal('card');
+    }
+    function confirmFreeBooking(){
+      pendingBooking = buildPending();
+      finalizeBooking(pendingBooking, null);
+    }
+
+    function restartChat(){
+      chatName=''; chatPhone=''; chatNotes=''; chatService=null; chatDate=null; chatTime=null; pendingBooking=null;
+      chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput();
+      updateBackBtn();
+      setTimeout(()=> startConversation(), 300);
+    }
+    function goBackChat(){
+      // sucesso -> volta ao chat
+      if(document.getElementById('booking-success').classList.contains('show')){
+        resetBookingFlow(); return;
+      }
+      // modal aberto -> fecha
+      const modal=document.getElementById('payment-modal');
+      if(modal && modal.classList.contains('show')){ closePaymentModal(); return; }
+      // volta por etapas do chat
+      if(chatPhone){ chatPhone=''; chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput(); askPhone(); updateBackBtn(); return; }
+      if(chatTime){ chatTime=null; chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput(); botSay(`Voltamos. ${dLabel(chatDate)} — escolha outro horário:`); askTime(); updateBackBtn(); return; }
+      if(chatDate){ chatDate=null; chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput(); askDate(); updateBackBtn(); return; }
+      if(chatService){ chatService=null; chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput(); askService(); updateBackBtn(); return; }
+      if(chatName){ chatName=''; chatMessages.innerHTML=''; chatOptions.innerHTML=''; hideChatInput(); askName(); updateBackBtn(); return; }
+      window.location.href='index.html';
+    }
+    function updateBackBtn(){
+      const btn=document.getElementById('chat-back-btn');
+      if(!btn) return;
+      const hasHistory = !!(chatName || chatService || chatDate || chatTime || chatPhone || document.getElementById('booking-success').classList.contains('show'));
+      btn.style.display = hasHistory ? 'flex' : 'none';
+    }
+
+    // ===== Pagamento e finalização (reutiliza gateway) =====
+    function copyPixKey(){
+      const biz = Storage.getBusiness();
+      const pix = (biz && biz.pixKey) || '';
+      if(!pix) return;
+      navigator.clipboard.writeText(pix).then(()=> showToast('Chave PIX copiada!','success')).catch(()=> showToast('Chave copiada!','success'));
+    }
+    function copyPixQrFromModal(){
+      const biz = Storage.getBusiness();
+      const qr = biz.pixQr;
+      if(!qr){ showToast('Nenhum QR para copiar','error'); return; }
+      if(qr.startsWith('data:')){
+        const a=document.createElement('a'); a.href=qr; a.download='qrcode-pix.png'; a.click();
+        showToast('QR baixado!','success');
+      } else {
+        navigator.clipboard.writeText(qr).then(()=> showToast('Link do QR copiado!','success'));
+      }
+    }
+    function downloadPixQr(){
+      const biz = Storage.getBusiness();
+      const qr = biz.pixQr;
+      if(!qr){ showToast('Nenhum QR','error'); return; }
+      const a=document.createElement('a'); a.href=qr; a.download='qrcode-pix.png'; a.click();
+      showToast('QR baixado!','success');
+    }
+    function openPaymentModal(method){
+      if(!pendingBooking || !pendingBooking.service){ showToast('Preencha a conversa até o final antes de pagar.','error'); return; }
+      const cfg = Storage.getPaymentConfig();
+      const calc = computePayment(pendingBooking.service.price, cfg);
+      const biz = Storage.getBusiness();
+      const modal = document.getElementById('payment-modal');
+      setStatus('');
+      document.getElementById('pm-pix-amount').innerText = formatMoney(calc.upfrontAmount);
+      document.getElementById('pm-pix-key').innerText = (biz && biz.pixKey) || 'Nenhuma chave configurada';
+      document.getElementById('pm-pix-name').innerText = (biz && biz.pixName) ? `Nome: ${biz.pixName}` : '';
+      const qrWrap=document.getElementById('pm-qr-wrap');
+      const qrImg=document.getElementById('pm-qr-img');
+      if(biz.pixQr && biz.pixQrEnabled){
+        if(qrWrap) qrWrap.style.display='block';
+        if(qrImg) qrImg.src=biz.pixQr;
+      } else {
+        if(qrWrap) qrWrap.style.display='none';
+      }
+      document.getElementById('pm-card-form').reset();
+      showPayMethod(method==='card' ? 'card' : 'pix');
+      document.getElementById('pm-title').innerText = `Pagar ${formatMoney(calc.upfrontAmount)} (${method==='card' ? 'Cartão' : 'PIX'})`;
+      modal.classList.add('show');
+    }
+    function closePaymentModal(){ document.getElementById('payment-modal').classList.remove('show'); setStatus(''); }
+    function setStatus(msg,type){ const el=document.getElementById('pm-status-msg'); el.innerText=msg||''; el.className='payment-modal-status'+(type?' '+type:''); }
+    function showPayMethod(method){
+      document.getElementById('pm-pix-content').style.display = method==='pix'?'block':'none';
+      document.getElementById('pm-card-content').style.display = method==='card'?'block':'none';
+      document.getElementById('pm-processing').style.display='none';
+    }
+    function confirmPixPayment(){
+      const cfg=Storage.getPaymentConfig();
+      const calc=computePayment(pendingBooking.service.price, cfg);
+      const biz=Storage.getBusiness();
+      setStatus('Gerando cobrança PIX...');
+      document.getElementById('pm-processing').style.display='block';
+      document.getElementById('pm-pix-content').style.display='none';
+      PaymentGateway.activeGateway=cfg.gateway;
+      PaymentGateway.createCharge({ amount: calc.upfrontAmount, method: PAYMENT_METHODS.PIX, description:`Sinal de ${pendingBooking.service.name} — ${biz.name}`, biz, customer:{name:pendingBooking.clientName, phone:pendingBooking.clientPhone} }).then(res=>{
+        if(!res.ok){ paymentFailed('Não foi possível gerar o pagamento PIX. Tente novamente.'); return; }
+        PaymentGateway.confirmCharge(res.paymentId).then(confirm=>{
+          if(confirm.ok && confirm.status==='approved') paymentSucceeded({method:'pix', paymentId: res.paymentId});
+          else paymentFailed('Pagamento não aprovado. Tente novamente.');
+        });
+      });
+    }
+    function processCardPayment(e){
+      e.preventDefault();
+      const cfg=Storage.getPaymentConfig();
+      const calc=computePayment(pendingBooking.service.price, cfg);
+      const biz=Storage.getBusiness();
+      document.getElementById('pm-card-submit').disabled=true;
+      setStatus('Processando pagamento com cartão...');
+      document.getElementById('pm-processing').style.display='block';
+      document.getElementById('pm-card-content').style.display='none';
+      PaymentGateway.activeGateway=cfg.gateway;
+      PaymentGateway.createCharge({ amount: calc.upfrontAmount, method: PAYMENT_METHODS.CARD, description:`Sinal de ${pendingBooking.service.name} — ${biz.name}`, biz, customer:{name:pendingBooking.clientName, phone:pendingBooking.clientPhone} }).then(res=>{
+        if(!res.ok){ paymentFailed('Pagamento não aprovado. Tente novamente.','card'); return; }
+        PaymentGateway.confirmCharge(res.paymentId).then(confirm=>{
+          if(confirm.ok && confirm.status==='approved') paymentSucceeded({method:'card', paymentId: res.paymentId}, true);
+          else paymentFailed('Pagamento não aprovado. Tente novamente.','card');
+        });
+      });
+    }
+    function paymentSucceeded(paymentInfo, isCard){
+      setStatus('Pagamento aprovado! Confirmando seu agendamento...','success');
+      finalizeBooking(pendingBooking, Object.assign({approved:true}, paymentInfo));
+      closePaymentModal();
+    }
+    function paymentFailed(msg, method){
+      setStatus(msg || 'O pagamento não foi concluído. Tente novamente.','error');
+      document.getElementById('pm-processing').style.display='none';
+      if(method==='card'){ document.getElementById('pm-card-content').style.display='block'; document.getElementById('pm-card-submit').disabled=false; }
+      else document.getElementById('pm-pix-content').style.display='block';
+    }
+
+    function finalizeBooking(booking, paymentInfo){
+      const biz=Storage.getBusiness();
+      const cfg=Storage.getPaymentConfig();
+      const calc=computePayment(booking.service.price, cfg);
+      const payRecord=buildPaymentRecord({ servicePrice: booking.service.price, paymentConfig: cfg, method: paymentInfo ? paymentInfo.method : (cfg.requireUpfront ? null : 'cash') });
+      if(paymentInfo && paymentInfo.approved){
+        payRecord.paidAmount = calc.upfrontAmount;
+        payRecord.remainingAmount = calc.remainingAmount;
+        payRecord.paymentStatus = calc.remainingAmount <=0 ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PARTIAL;
+        payRecord.appointmentStatus = APPOINTMENT_STATUS.BOOKED;
+        payRecord.method = paymentInfo.method;
+        payRecord.transactionId = paymentInfo.paymentId || null;
+      }
+      const newAppointment = {
+        id: 'apt-'+Date.now(),
+        clientName: booking.clientName,
+        clientPhone: booking.clientPhone,
+        serviceName: booking.service.name,
+        serviceId: booking.service.id,
+        price: booking.service.price,
+        date: booking.dateRaw,
+        dateDisplay: booking.dateDisplay,
+        time: booking.time,
+        notes: booking.clientNotes,
+        status: payRecord.appointmentStatus===APPOINTMENT_STATUS.CANCELLED?'cancelled':'confirmed',
+        createdAt: new Date().toISOString(),
+        payment: payRecord
+      };
+      Storage.addAppointment(newAppointment);
+      const cleanBizPhone=(biz.whatsapp||'').replace(/\D/g,'');
+      const payLine = cfg.requireUpfront ? `💳 *Sinal pago:* ${formatMoney(payRecord.paidAmount)} (${payRecord.method==='card'?'Cartão':'PIX'})\n💰 *Restante (presencial):* ${formatMoney(payRecord.remainingAmount)}\n` : `💰 *Pagamento:* presencial no atendimento\n`;
+      const waText=`*CONFIRMAÇÃO DE AGENDAMENTO* ✨\n🏢 *Estabelecimento:* ${biz.name}\n👤 *Cliente:* ${booking.clientName}\n📱 *Telefone:* ${booking.clientPhone}\n✂️ *Serviço:* ${booking.service.name}\n📅 *Data:* ${booking.dateDisplay} (${booking.dateRaw})\n⏰ *Horário:* ${booking.time}\n💰 *Valor total:* ${formatMoney(booking.service.price)}\n${payLine}${booking.clientNotes?`📝 *Observação:* ${booking.clientNotes}\n`:''}📍 *Endereço:* ${biz.address||'Consulte o estabelecimento'}\n\nAgradecemos sua preferência! Nos vemos em breve.`;
+      const waUrl=`https://wa.me/${cleanBizPhone||'5511999999999'}?text=${encodeURIComponent(waText)}`;
+      document.getElementById('success-detail-service').innerHTML=`<strong>Serviço:</strong> ${booking.service.name}`;
+      document.getElementById('success-detail-date').innerHTML=`<strong>Data e Horário:</strong> ${booking.dateDisplay} às ${booking.time}`;
+      document.getElementById('success-detail-client').innerHTML=`<strong>Cliente:</strong> ${booking.clientName} (${booking.clientPhone})`;
+      document.getElementById('success-detail-price').innerHTML=`Valor Total: ${formatMoney(booking.service.price)}`;
+      const paySummary=document.getElementById('success-payment-summary');
+      if(paySummary){
+        if(cfg.requireUpfront){
+          paySummary.innerHTML=`<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;"><span>Sinal pago (${payRecord.method==='card'?'Cartão':'PIX'}):</span><strong style="color:#10B981;">${formatMoney(payRecord.paidAmount)}</strong></div><div style="display:flex;justify-content:space-between;font-size:14px;"><span>Restante (presencial):</span><strong>${formatMoney(payRecord.remainingAmount)}</strong></div>`;
+          paySummary.style.display='block';
+        } else paySummary.style.display='none';
+      }
+      document.getElementById('whatsapp-notify-btn').href=waUrl;
+      const successPix=document.getElementById('payment-success-block');
+      if(successPix) successPix.style.display='none';
+      document.getElementById('booking-chat-flow').style.display='none';
+      document.getElementById('booking-success').classList.add('show');
+      updateBackBtn();
+      showToast('Agendamento realizado com sucesso!','success');
+    }
+
+    function resetBookingFlow(){
+      document.getElementById('booking-success').classList.remove('show');
+      document.getElementById('booking-chat-flow').style.display='block';
+      restartChat();
+    }
+  </script>
+</body>
+</html>

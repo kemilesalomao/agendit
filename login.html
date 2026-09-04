@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acessar Painel — Agendit</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+</head>
+<body class="auth-page">
+
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="logo">
+        <a href="index.html">✨ Agend<span class="text-gradient">it</span></a>
+      </div>
+      <h2>Acessar Painel</h2>
+      <p>Entre com o e-mail e a senha cadastrados na sua compra.</p>
+    </div>
+
+    <!-- ERRO -->
+    <div class="auth-error" id="auth-error"></div>
+
+    <!-- FORM LOGIN -->
+    <form id="form-login" onsubmit="handleLogin(event)">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label class="form-label" for="login-email">E-mail</label>
+        <input type="email" id="login-email" class="form-input" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 22px;">
+        <label class="form-label" for="login-password">Senha</label>
+        <input type="password" id="login-password" class="form-input" placeholder="Sua senha" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-full">
+        Entrar
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Ainda não tem conta de empresário? <a href="checkout.html">Adquira o plano para criar sua conta</a>
+    </div>
+
+    <!-- ACESSO DO ADMINISTRADOR -->
+    <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 8px;">🔑 Acesso do Administrador</div>
+      <button type="button" class="btn btn-ghost btn-sm btn-full" style="border: 1.5px dashed var(--primary); color: var(--primary);" onclick="loginAsAdmin()">
+        Entrar como Administrador (Demo)
+      </button>
+      <p style="font-size: 12px; color: var(--text-faint); margin-top: 8px; text-align: center;">
+        Demo — E-mail: admin@kemilesalomao017.com &nbsp;•&nbsp; Senha: @Ks250805
+      </p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Se já estiver logado como admin, vai direto ao painel admin
+    if (Auth.isLoggedIn() && Auth.isAdmin()) {
+      window.location.replace('admin-dashboard.html');
+    }
+    // Se já estiver logado como empresário, vai ao painel
+    if (Auth.isLoggedIn()) {
+      window.location.replace('dashboard.html');
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('auth-error');
+      box.innerText = msg;
+      box.classList.add('show');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const box = document.getElementById('auth-error');
+      box.classList.remove('show');
+
+      const res = Auth.login(email, password);
+      if (!res.ok) {
+        showError(res.error);
+        return;
+      }
+      window.location.replace(Auth.isAdmin() ? 'admin-dashboard.html' : 'dashboard.html');
+    }
+
+    // Acesso rápido do Administrador (demo)
+    function loginAsAdmin() {
+      const res = Auth.loginAdmin('admin@kemilesalomao017.com', '@Ks250805');
+      if (!res.ok) {
+        showError('Não foi possível entrar como administrador.');
+        return;
+      }
+      window.location.replace('admin-dashboard.html');
+    }
+  </script>
+</body>
+</html>
